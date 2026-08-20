@@ -30,8 +30,8 @@ export default function Resort() {
   return (
     <main ref={ref} className="bg-ink-950">
       {/* ═══════════ 1 · THE FLYOVER — pinned aerial, scrub-zoomed ═══════════ */}
-      <section id="flyover" data-zoom-section className="relative" style={{ height: '340vh' }}>
-        <div className="sticky top-0 h-screen overflow-hidden">
+      <section id="flyover" data-zoom-section className="relative scrub-fly">
+        <div className="sticky top-0 h-dvh overflow-hidden">
           <img
             src={IMG.aerial}
             alt="Aerial view of Sea Guinon's coastline"

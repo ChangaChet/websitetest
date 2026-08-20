@@ -1,14 +1,6 @@
-import {
-  VIDEO1_SRCS,
-  VIDEO2_SRCS,
-  VIDEO3_SRCS,
-  VIDEO4_SRCS,
-  VIDEO1_POSTER,
-} from '../data/content';
+import { VIDEO1_SRCS, VIDEO1_POSTER, VIDEO2_SRCS, VIDEO3_SRCS, VIDEO4_SRCS } from '../data/content';
 
 const blobByRemote = new Map<string, string>();
-
-export const ALL_VIDEO_GROUPS = [VIDEO1_SRCS, VIDEO2_SRCS, VIDEO3_SRCS, VIDEO4_SRCS];
 
 export function resolveVideoSrc(remote: string): string {
   return blobByRemote.get(remote) || remote;
@@ -36,7 +28,7 @@ function warmVideo(src: string): Promise<void> {
     };
     v.addEventListener('canplaythrough', done, { once: true });
     v.addEventListener('error', done, { once: true });
-    setTimeout(done, 8000);
+    setTimeout(done, 6000);
     v.load();
   });
 }
@@ -50,36 +42,35 @@ function loadImage(url: string): Promise<void> {
   });
 }
 
+function isPhone() {
+  return typeof window !== 'undefined' && window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+}
+
 export async function preloadSiteMedia(onProgress: (p: number) => void): Promise<void> {
-  const remotes = ALL_VIDEO_GROUPS.map((g) => g[0]);
-  const total = remotes.length + 2; // videos + poster + decode home
-  let done = 0;
-  const tick = () => {
-    done += 1;
-    onProgress(Math.min(1, done / total));
-  };
+  const phone = isPhone();
+  const home = VIDEO1_SRCS[0];
 
   await loadImage(VIDEO1_POSTER);
-  tick();
+  onProgress(0.25);
 
-  await Promise.all(
-    remotes.map(async (url, i) => {
-      try {
-        await cacheOne(url);
-      } catch {
-        /* keep remote URL */
-      }
-      tick();
-      if (i === 0) {
-        try {
-          await warmVideo(resolveVideoSrc(url));
-        } catch {
-          /* ignore */
-        }
-        tick();
-      }
-    })
-  );
+  try {
+    await cacheOne(home);
+  } catch {
+    /* keep remote */
+  }
+  onProgress(0.7);
 
+  try {
+    await warmVideo(resolveVideoSrc(home));
+  } catch {
+    /* ignore */
+  }
   onProgress(1);
+
+  if (!phone) {
+    const rest = [VIDEO2_SRCS[0], VIDEO3_SRCS[0], VIDEO4_SRCS[0]];
+    rest.forEach((url) => {
+      cacheOne(url).catch(() => {});
+    });
+  }
 }

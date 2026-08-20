@@ -169,7 +169,7 @@ export default function Header() {
       <button
         type="button"
         onClick={() => openBooking()}
-        className="md:hidden fixed bottom-4 right-4 z-50 px-5 py-3 rounded-full bg-dune-400 text-ink-950 text-sm font-bold shadow-lg"
+        className="md:hidden fixed z-50 px-5 py-3 rounded-full bg-dune-400 text-ink-950 text-sm font-bold shadow-lg right-4 bottom-[max(1rem,env(safe-area-inset-bottom))]"
       >
         Book
       </button>

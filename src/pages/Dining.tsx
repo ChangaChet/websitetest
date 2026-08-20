@@ -21,7 +21,7 @@ export default function Dining() {
   return (
     <main ref={ref} className="bg-ink-950">
       {/* ═══════════ 1 · THE TIDE — scrub film ═══════════ */}
-      <section id="vs-dining" style={{ height: '300vh' }}>
+      <section id="vs-dining" className="scrub-film">
         <ScrollVideo srcs={VIDEO2_SRCS} poster={VIDEO2_POSTER} scrollContainerId="vs-dining">
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-ink-950/35 pointer-events-none" />
 
@@ -35,7 +35,7 @@ export default function Dining() {
           </div>
 
           <div data-vtext data-target="#vs-dining" data-enter="42" data-leave="68" className="absolute inset-0 flex items-end justify-end opacity-0 pointer-events-none">
-            <div className="max-w-md mr-6 sm:mr-16 lg:mr-24 pb-24 text-right">
+            <div className="max-w-md mx-5 sm:mx-0 sm:mr-16 lg:mr-24 pb-24 text-left sm:text-right">
               <p className="font-display font-bold text-foam-100 text-[clamp(1.5rem,3.2vw,2.4rem)] leading-[1.05]">
                 If it didn't swim this morning, <span className="text-dune-400">it isn't on the plate tonight.</span>
               </p>
@@ -49,7 +49,7 @@ export default function Dining() {
       </section>
 
       {/* ═══════════ 2 · OVER THE COALS — scrubbed grilling footage, three moments ═══════════ */}
-      <section id="vs-kitchen" style={{ height: '300vh' }}>
+      <section id="vs-kitchen" className="scrub-film">
         <ScrollVideo srcs={VIDEO3_SRCS} poster={VIDEO3_POSTER} scrollContainerId="vs-kitchen" lazy>
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/25 to-ink-950/40 pointer-events-none" />
 
@@ -63,7 +63,7 @@ export default function Dining() {
           </div>
 
           <div data-vtext data-target="#vs-kitchen" data-enter="38" data-leave="62" className="absolute inset-0 flex items-center justify-end opacity-0 pointer-events-none">
-            <div className="max-w-md mr-6 sm:mr-16 lg:mr-24 text-right">
+            <div className="max-w-md mx-5 sm:mx-0 sm:mr-16 lg:mr-24 text-left sm:text-right">
               <p className="font-display font-extrabold text-foam-100 uppercase leading-[0.95] text-[clamp(2rem,5vw,4rem)] tracking-tight">
                 Noon — the<br />catch meets<br />the coals.
               </p>
@@ -184,7 +184,7 @@ export default function Dining() {
       </section>
 
       {/* ═══════════ 6 · FROM THE BAR — scrubbed bartender footage ═══════════ */}
-      <section id="vs-bar" style={{ height: '260vh' }}>
+      <section id="vs-bar" className="scrub-bar">
         <ScrollVideo
           srcs={VIDEO4_SRCS}
           poster={VIDEO4_POSTER}

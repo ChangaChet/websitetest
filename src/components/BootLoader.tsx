@@ -8,9 +8,10 @@ export default function BootLoader({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     let live = true;
+    const phone = window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
     const failSafe = window.setTimeout(() => {
       if (live) setReady(true);
-    }, 22000);
+    }, phone ? 8000 : 16000);
 
     preloadSiteMedia((p) => {
       if (live) setProgress(p);

@@ -12,13 +12,13 @@ export default function Home() {
   return (
     <main ref={ref}>
       {/* ─── The scrub film: scroll = playback ─── */}
-      <section id="vs-home" style={{ height: '420vh' }}>
+      <section id="vs-home" className="scrub-home">
         <ScrollVideo srcs={VIDEO1_SRCS} poster={VIDEO1_POSTER} scrollContainerId="vs-home">
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950/70 via-transparent to-ink-950/30 pointer-events-none" />
 
           {/* Opening */}
           <div data-vtext data-target="#vs-home" data-enter="1" data-leave="26" className="absolute inset-0 flex items-end opacity-0 pointer-events-none">
-            <div className="max-w-6xl mx-auto px-5 sm:px-8 pb-16 sm:pb-24 w-full">
+            <div className="max-w-6xl mx-auto px-5 sm:px-8 pb-[max(4rem,env(safe-area-inset-bottom))] sm:pb-24 w-full">
               <p className="text-dune-400 font-display text-sm font-semibold tracking-[0.2em] uppercase mb-5">
                 Coastal Philippines · Est. 2019
               </p>
@@ -30,7 +30,7 @@ export default function Home() {
 
           {/* Coastline */}
           <div data-vtext data-target="#vs-home" data-enter="34" data-leave="54" className="absolute inset-0 flex items-center justify-end opacity-0 pointer-events-none">
-            <div className="max-w-sm mr-6 sm:mr-16 lg:mr-24 text-right">
+            <div className="max-w-sm mx-5 sm:mx-0 sm:mr-16 lg:mr-24 text-left sm:text-right">
               <p className="text-dune-400 font-display text-sm font-semibold tracking-[0.2em] uppercase mb-3">The coastline</p>
               <p className="font-display font-extrabold uppercase text-foam-100 leading-[0.95] tracking-tight text-[clamp(2rem,4.5vw,3.6rem)]">
                 Warm water.<br />White sand.<br />No crowds.
@@ -40,7 +40,7 @@ export default function Home() {
 
           {/* The retreat */}
           <div data-vtext data-target="#vs-home" data-enter="60" data-leave="80" className="absolute inset-0 flex items-center opacity-0 pointer-events-none">
-            <div className="max-w-sm ml-6 sm:ml-16 lg:ml-24">
+            <div className="max-w-sm mx-5 sm:mx-0 sm:ml-16 lg:ml-24">
               <p className="text-dune-400 font-display text-sm font-semibold tracking-[0.2em] uppercase mb-3">The retreat</p>
               <p className="font-display font-extrabold uppercase text-foam-100 leading-[0.95] tracking-tight text-[clamp(2rem,4.5vw,3.6rem)]">
                 Holidays, off-sites &amp; teen adventures.

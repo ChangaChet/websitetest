@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { resolveVideoSrc } from '../lib/mediaCache';
 
-/* One capture job at a time so three dining films don't decode together. */
 let captureLock: Promise<void> = Promise.resolve();
 function withCaptureLock<T>(fn: () => Promise<T>): Promise<T> {
   let release!: () => void;
@@ -14,10 +13,11 @@ function withCaptureLock<T>(fn: () => Promise<T>): Promise<T> {
   return prev.then(fn).finally(release);
 }
 
-const CANVAS_W = 960;
-const CANVAS_H = 540;
-const CAPTURE_W = 640;
 const SEEK_TIMEOUT = 900;
+
+function isPhone() {
+  return window.matchMedia('(max-width: 768px), (pointer: coarse)').matches;
+}
 
 function seekOnce(video: HTMLVideoElement, t: number): Promise<void> {
   return new Promise((resolve) => {
@@ -118,10 +118,12 @@ export default function ScrollVideo({
   const lastKeyRef = useRef(-1);
   const rafRef = useRef(0);
   const visibleRef = useRef(!lazy);
+  const phoneRef = useRef(false);
 
   const [srcIdx, setSrcIdx] = useState(0);
   const [armed, setArmed] = useState(!lazy);
   const [painted, setPainted] = useState(false);
+  const [liveLayer, setLiveLayer] = useState(false);
 
   useEffect(() => {
     if (!lazy) return;
@@ -134,11 +136,24 @@ export default function ScrollVideo({
           io.disconnect();
         }
       },
-      { rootMargin: armMargin }
+      { rootMargin: isPhone() ? '40% 0px 40% 0px' : armMargin }
     );
     io.observe(el);
     return () => io.disconnect();
   }, [lazy, scrollContainerId, armMargin]);
+
+  const sizeCanvas = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(320, Math.round(window.innerWidth * dpr));
+    const h = Math.max(480, Math.round(window.innerHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+      lastKeyRef.current = -1;
+    }
+  }, []);
 
   const drawCover = useCallback((src: CanvasImageSource, w: number, h: number) => {
     const ctx = ctxRef.current;
@@ -156,6 +171,9 @@ export default function ScrollVideo({
     const canvas = canvasRef.current;
     if (!video || !canvas) return;
 
+    phoneRef.current = isPhone();
+    if (phoneRef.current) setLiveLayer(true);
+    sizeCanvas();
     ctxRef.current = canvas.getContext('2d', { alpha: true });
     let cancelled = false;
     const listeners: Array<() => void> = [];
@@ -164,16 +182,25 @@ export default function ScrollVideo({
     let settleTimer = 0;
     const seekTo = (p: number) => {
       if (!video.duration || !isFinite(video.duration)) return;
-      const t = Math.min(Math.max(p, 0), 1) * (video.duration - 0.05);
-      if (Math.abs(video.currentTime - t) > 0.04) video.currentTime = t;
+      const t = Math.min(Math.max(p, 0), 1) * Math.max(video.duration - 0.08, 0);
+      if (Math.abs(video.currentTime - t) > 0.05) video.currentTime = t;
     };
     const setupLiveMode = () => {
       modeRef.current = 'live';
       const drawCurrent = () => {
-        if (video.readyState >= 2) drawCover(video, video.videoWidth, video.videoHeight);
+        if (video.readyState >= 2) {
+          if (!phoneRef.current) {
+            drawCover(video, video.videoWidth, video.videoHeight);
+          }
+          setPainted(true);
+        }
       };
       video.addEventListener('seeked', drawCurrent);
-      listeners.push(() => video.removeEventListener('seeked', drawCurrent));
+      video.addEventListener('loadeddata', drawCurrent);
+      listeners.push(() => {
+        video.removeEventListener('seeked', drawCurrent);
+        video.removeEventListener('loadeddata', drawCurrent);
+      });
       if (video.readyState >= 2) drawCurrent();
     };
 
@@ -190,13 +217,14 @@ export default function ScrollVideo({
         throw new Error('video not ready');
       }
 
-      const fps = duration < 10 ? 5 : 3.5;
-      const N = Math.min(Math.max(Math.round(duration * fps), 24), 64);
+      const phone = phoneRef.current;
+      const fps = phone ? 2.5 : duration < 10 ? 5 : 3.5;
+      const N = Math.min(Math.max(Math.round(duration * fps), phone ? 12 : 24), phone ? 28 : 64);
       countRef.current = N;
 
       const ratio = video.videoHeight / video.videoWidth;
-      const cw = CAPTURE_W;
-      const ch = Math.round(CAPTURE_W * ratio);
+      const cw = phone ? 480 : 640;
+      const ch = Math.round(cw * ratio);
       const off = document.createElement('canvas');
       off.width = cw;
       off.height = ch;
@@ -214,19 +242,20 @@ export default function ScrollVideo({
         try {
           frames[i] = await createImageBitmap(off);
         } catch {
-          /* skip this slot */
+          /* skip */
         }
         await yieldMain();
       };
 
       try {
         await captureIndex(0);
+        setPainted(true);
       } catch {
-        /* retry in pass */
+        /* retry */
       }
       if (cancelled) return;
 
-      await waitForBuffer(video, duration, 2000);
+      await waitForBuffer(video, duration, phone ? 1200 : 2000);
       if (cancelled) return;
 
       for (const i of captureOrder(N)) {
@@ -237,12 +266,16 @@ export default function ScrollVideo({
       modeRef.current = 'frames';
     };
 
-    withCaptureLock(() => captureFrames()).catch(() => {
-      if (!cancelled && modeRef.current === 'capturing') {
-        framesRef.current = null;
-        setupLiveMode();
-      }
-    });
+    if (phoneRef.current) {
+      setupLiveMode();
+    } else {
+      withCaptureLock(() => captureFrames()).catch(() => {
+        if (!cancelled && modeRef.current === 'capturing') {
+          framesRef.current = null;
+          setupLiveMode();
+        }
+      });
+    }
 
     const st = ScrollTrigger.create({
       trigger: `#${scrollContainerId}`,
@@ -256,12 +289,13 @@ export default function ScrollVideo({
         targetRef.current = self.progress;
         if (modeRef.current === 'live') {
           const now = performance.now();
-          if (now - lastSeekAt >= 80) {
+          const gap = phoneRef.current ? 100 : 80;
+          if (now - lastSeekAt >= gap) {
             lastSeekAt = now;
             seekTo(self.progress);
           }
           window.clearTimeout(settleTimer);
-          settleTimer = window.setTimeout(() => seekTo(self.progress), 160);
+          settleTimer = window.setTimeout(() => seekTo(self.progress), 180);
         }
       },
     });
@@ -303,10 +337,10 @@ export default function ScrollVideo({
     };
 
     const loop = () => {
-      if (visibleRef.current) paint();
+      if (visibleRef.current && !phoneRef.current) paint();
       rafRef.current = requestAnimationFrame(loop);
     };
-    rafRef.current = requestAnimationFrame(loop);
+    if (!phoneRef.current) rafRef.current = requestAnimationFrame(loop);
 
     const vis = new IntersectionObserver(
       ([entry]) => {
@@ -316,10 +350,16 @@ export default function ScrollVideo({
     );
     vis.observe(canvas);
 
+    const onResize = () => {
+      sizeCanvas();
+    };
+    window.addEventListener('resize', onResize);
+
     return () => {
       cancelled = true;
       cancelAnimationFrame(rafRef.current);
       window.clearTimeout(settleTimer);
+      window.removeEventListener('resize', onResize);
       listeners.forEach((off) => off());
       st.kill();
       vis.disconnect();
@@ -328,10 +368,10 @@ export default function ScrollVideo({
       lastKeyRef.current = -1;
       modeRef.current = 'capturing';
     };
-  }, [armed, srcIdx, scrollContainerId, drawCover]);
+  }, [armed, srcIdx, scrollContainerId, drawCover, sizeCanvas]);
 
   return (
-    <div className="sticky top-0 h-screen w-full overflow-hidden bg-[#0a1a17]">
+    <div className="sticky top-0 h-dvh w-full overflow-hidden bg-[#0a1a17]">
       <img
         src={poster}
         alt=""
@@ -350,15 +390,18 @@ export default function ScrollVideo({
             playsInline
             preload="auto"
             disablePictureInPicture
-            className="absolute opacity-0 pointer-events-none"
-            style={{ width: 2, height: 2 }}
+            className={
+              liveLayer
+                ? 'absolute inset-0 w-full h-full object-cover pointer-events-none'
+                : 'absolute opacity-0 pointer-events-none'
+            }
+            style={liveLayer ? undefined : { width: 2, height: 2 }}
             tabIndex={-1}
           />
           <canvas
             ref={canvasRef}
-            width={CANVAS_W}
-            height={CANVAS_H}
-            className="absolute inset-0 w-full h-full"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            style={{ opacity: painted && !liveLayer ? 1 : 0 }}
           />
         </>
       )}

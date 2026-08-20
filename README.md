@@ -1,37 +1,22 @@
 # Sea Guinon Resort
 
-Editorial marketing site for Sea Guinon — a beachfront resort on the Philippine coast.
+Marketing site for Sea Guinon, a beachfront resort on the Philippine coast.
 
-Built with React 19, Vite, Tailwind CSS 4, GSAP ScrollTrigger, Lenis, and Framer Motion.
+React + Vite + Tailwind CSS 4 + GSAP + Lenis.
 
-## Run locally
+## Local
 
 ```bash
 npm install
 npm run dev
 ```
 
-Open the URL Vite prints (usually `http://localhost:5173`).
+## Vercel
 
-## Production build
+1. Push this folder to a GitHub repo (do **not** commit `node_modules`).
+2. Import the repo in Vercel — framework preset **Vite**, build `npm run build`, output `dist`.
+3. Deploy. Root path `/` is correct (no GitHub Pages subpath).
 
-```bash
-npm run build
-npm run preview
-```
+## Content
 
-The build emits a single `dist/index.html` (inlined JS/CSS) via `vite-plugin-singlefile`. That file can be dropped on GitHub Pages, Netlify, or any static host.
-
-GitHub Pages: this app uses `HashRouter`, so routes work without a custom 404 rewrite (`/#/resort`, `/#/dining`, …).
-
-## Scripts
-
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server |
-| `npm run build` | Production bundle |
-| `npm run preview` | Serve the production build |
-
-## Note
-
-Videos and photos are loaded from Pexels. Swap the URLs in `src/data/content.ts` for your own assets when you go live.
+Copy, prices, and media URLs live in `src/data/content.ts`.
