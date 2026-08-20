@@ -1,0 +1,166 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Instrument Sans', system-ui, -apple-system, sans-serif;
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+
+  /* Deep-ocean night — teal-tinted, never pure black */
+  --color-ink-950: #071412;
+  --color-ink-900: #0a1a17;
+  --color-ink-850: #0d201c;
+  --color-ink-800: #112723;
+  --color-ink-700: #1b352f;
+  --color-ink-600: #2a4a42;
+
+  /* Warm foam whites for text */
+  --color-foam-100: #efe9da;
+  --color-foam-300: #cfd6c9;
+  --color-foam-500: #90a49b;
+  --color-foam-600: #6e8278;
+
+  /* Golden-hour light — primary accent */
+  --color-dune-400: #e8b45c;
+  --color-dune-500: #d99b36;
+
+  /* Lagoon — secondary accent */
+  --color-lagoon-400: #63d8c3;
+
+  /* Coral — used sparingly */
+  --color-coral-500: #e0704f;
+}
+
+@layer base {
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Lenis */
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+
+  body {
+    font-family: var(--font-sans);
+    color: #cfd6c9;
+    background-color: #071412;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: #d99b36; color: #071412; }
+
+  :focus-visible {
+    outline: 2px solid #e8b45c;
+    outline-offset: 3px;
+  }
+
+  .field {
+    display: block;
+    width: 100%;
+    margin-top: 0.35rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 0.5rem;
+    background: #071412;
+    border: 1px solid rgba(239, 233, 218, 0.12);
+    color: #efe9da;
+    font: inherit;
+  }
+  .field:focus {
+    outline: none;
+    border-color: #e8b45c;
+  }
+}
+
+.img-fade {
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+.img-fade.is-on { opacity: 1; }
+
+a.skip-link {
+  position: absolute;
+  left: 1rem;
+  top: -4rem;
+  z-index: 300;
+  background: #e8b45c;
+  color: #071412;
+  padding: 0.6rem 1rem;
+  font-weight: 700;
+  border-radius: 0.4rem;
+}
+a.skip-link:focus { top: 1rem; }
+
+/* ── Film grain over everything (ambient layer) ── */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -50%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 9s steps(6) infinite;
+}
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-3%, 2%); }
+  40% { transform: translate(2%, -3%); }
+  60% { transform: translate(-2%, -2%); }
+  80% { transform: translate(3%, 2%); }
+}
+
+/* ── Outline display type ── */
+.text-outline {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(239, 233, 218, 0.38);
+}
+.text-outline-dune {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(232, 180, 92, 0.55);
+}
+
+/* ── Line-mask reveal wrapper ── */
+.line-mask { display: block; overflow: hidden; }
+.line-mask > span { display: block; will-change: transform; }
+
+/* ── Day-timeline step activation (GSAP sets data-active) ── */
+[data-step] { opacity: 0.28; transition: opacity 0.5s ease; }
+[data-step][data-active='true'] { opacity: 1; }
+[data-step] .step-dot {
+  border-color: #2a4a42;
+  background: #0a1a17;
+  transition: all 0.5s ease;
+}
+[data-step][data-active='true'] .step-dot {
+  border-color: #e8b45c;
+  background: #e8b45c;
+  box-shadow: 0 0 0 6px rgba(232, 180, 92, 0.12);
+}
+[data-step] .step-place { transition: color 0.5s ease; }
+[data-step][data-active='true'] .step-place { color: #e8b45c; }
+
+/* ── Amenity feature rows (GSAP sets data-active) ── */
+[data-feat] { opacity: 0.3; transition: opacity 0.45s ease; }
+[data-feat][data-active='true'] { opacity: 1; }
+
+/* ── Menu row hover ── */
+.dish-row { transition: background-color 0.3s ease, padding-left 0.3s ease; }
+.dish-row:hover { background-color: rgba(232, 180, 92, 0.05); padding-left: 0.75rem; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: #071412; }
+::-webkit-scrollbar-thumb { background: #1b352f; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #2a4a42; }
+
+@media (prefers-reduced-motion: reduce) {
+  body::after { animation: none; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
