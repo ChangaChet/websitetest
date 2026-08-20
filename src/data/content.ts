@@ -48,20 +48,32 @@ export const IMG = {
   teens: 'https://images.pexels.com/photos/1197373/pexels-photo-1197373.jpeg?auto=compress&cs=tinysrgb&fit=crop&h=800&w=1200',
 };
 
+export const CONTACT = {
+  phone: '09458450205',
+  phoneHref: 'tel:+639458450205',
+  facebook: 'Sea Guinon',
+  facebookHref: 'https://www.facebook.com/search/top?q=Sea%20Guinon',
+  address1: 'Zone 7 Taragonna Street',
+  address2: 'Brgy. Poblacion District 3',
+  address3: 'Macarthur, Leyte, Philippines',
+  checkIn: '1:00 PM',
+  checkOut: '11:00 AM',
+};
+
 export const NAV_LINKS = [
   { label: 'The Resort', to: '/resort' },
   { label: 'Dining', to: '/dining' },
-  { label: 'Packages', to: '/packages' },
+  { label: 'Rates', to: '/packages' },
   { label: 'Reviews', to: '/reviews' },
   { label: 'FAQ', to: '/faq' },
 ];
 
 /* ─── resort: spec moments (count-up) ─── */
 export const SPECS = [
-  { to: 50, suffix: '', label: 'rooms & villas, all facing water' },
-  { to: 240, suffix: ' m', label: 'of private beach, never crowded' },
-  { to: 3, suffix: '', label: 'dining rooms, one of them legendary' },
-  { to: 45, suffix: ' min', label: 'from the airport, door to sand' },
+  { to: 3, suffix: '', label: 'room types — standard, family, barkada' },
+  { to: 24, suffix: '', label: 'pax in the barkada room for the whole barkada' },
+  { to: 4, suffix: '', label: 'cottage setups, seaside to gazebo' },
+  { to: 150, suffix: '', label: 'PHP adult entrance, pool included' },
 ];
 
 /* ─── resort: amenities for the pinned column ─── */
